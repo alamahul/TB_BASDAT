@@ -3,11 +3,9 @@
 session_start();
 if (!isset($_SESSION['username'])) {
     // Jika belum login, kembalikan ke login
-    
     header("Location: login.php");
     exit;
 }
-include 'config.php';
 
 ?>
 
@@ -22,14 +20,15 @@ include 'config.php';
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Dashboard - SIPEDES</title>
+  <title>Edit Data Profile - SIPEDES</title>
 
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link rel="shortcut icon" href="Lambang_kabupaten_garut.png" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
   <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
+   <!-- Custom styles for this page -->
+   <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 </head>
 
 <body id="page-top">
@@ -55,6 +54,8 @@ include 'config.php';
       </li>
 
       <hr class="sidebar-divider">
+
+
       <li class="nav-item">
         <a class="nav-link collapsed ml-1" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
           <i class="fas fa-list-alt"></i>
@@ -97,7 +98,6 @@ include 'config.php';
       </div>
 
     </ul>
-
     <div id="content-wrapper" class="d-flex flex-column">
 
       <div id="content">
@@ -133,36 +133,70 @@ include 'config.php';
           </ul>
 
         </nav>
-        <div class="container-fluid">
+        
 
-          <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            </div>
+            <div class="container-fluid">
 
-         
-
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="card shadow mb-4">
-              <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Selamat Datang di Dashboard Admin Sistem Informasi Pengelolaan Desa X</h6>
-               
-              </div>
-                <div class="card-body">
-                  <p>Sistem Pengelola Desa adalah platform digital terpadu yang dirancang untuk memudahkan administrasi dan layanan desa secara efisien dan transparan. Melalui dashboard ini, Anda sebagai admin dapat mengelola berbagai aspek pemerintahan desa, termasuk:</p>
-                  <ul>
-                  <li>Data Penduduk: Lihat dan kelola data warga secara real-time.</li>
-                  <li>Pelayanan Publik: Pantau pengajuan surat, permohonan layanan, dan statusnya.</li>
-                  <li>Keuangan Desa: Catat dan pantau pemasukan serta pengeluaran anggaran desa.</li>
-                  <li>Pegawai Desa: Mencatat data pegawai dari kantor desa.</li>
-                  <li>Absensi Pegawai: Absensi harian untuk pegawai desa.</li>
-                  <li>Agenda dan Kegiatan: Atur jadwal kegiatan desa dan dokumentasikan hasilnya.</li>
-                  <li>Laporan dan Statistik: Akses laporan bulanan dan data statistik desa.</li>
-                  </ul>
+            <div class="d-sm-flex align-items-center justify-content-left mb-4">
+                <div>
+                  <a href="profile.php" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
                 </div>
+                <!-- <h1 class="h3 ml-4 mb-0 text-gray-800">Halaman Edit Data Pegawai</h1> -->
               </div>
-            </div>
-          </div>
+                <form action="proses_pencatatan_absen.php" method="POST">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                      <h6 class="m-0 font-weight-bold text-primary">Edit Data Profile</h6>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        </div>
+                          <form class="user" method="post" enctype="multipart/form-data" action="proses_ubah_pegawai.php">
+                           
+                          <div class="form-group">
+                              <h5>Username</h5>
+                              <input class="form-control" type="text" name="username" id="username" required>
+                            </div>
+                            <div class="form-group">
+                              <h5>Email</h5>
+                              <input class="form-control" name="email" id="email">
+                            </div>
+                            <div class="form-group">
+                              <h5>No Telepon</h5>
+                              <input class="form-control" name="no_telepon" id="no_telepon">
+                            </div>
+                            <div class="form-group">
+                              <h5>Password Lama</h5>
+                              <input class="form-control" name="password_lama" id="password_lama">
+                            </div>
+                            <div class="form-group">
+                              <h5>Password Baru</h5>
+                              <input class="form-control" name="password_baru" id="password_baru">
+                            </div>
+                            <button class="btn btn-warning" type="submit">
+                              <i class="fas fa-upload"></i>
+                              Ubah
+                            </button>
+                        <a href="profile.php" class="btn btn-secondary">
+                          <i class="fas fa-chevron-circle-left"></i> Kembali
+                        </a>
+                        <?php // var_dump($_POST); var_dump($_FILES); ?>
+                      </form>
+                    </div>
+                    
+              </div>
+              </form>
+        
+            
+        
+      </div>
+    </div>
+
+          
+
+          
 
           
           </div>
@@ -207,8 +241,12 @@ include 'config.php';
 
   <script src="vendor/chart.js/Chart.min.js"></script>
 
-  <script src="js/demo/chart-area-demo.js"></script>
-  <script src="js/demo/chart-pie-demo.js"></script>
+  <!-- Page level plugins -->
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+  <!-- Page level custom scripts -->
+  <script src="js/demo/datatables-demo.js"></script>
 
 </body>
 

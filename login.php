@@ -1,3 +1,13 @@
+<?php
+session_start();
+if (isset($_SESSION['username'])) {
+    // Jika sudah login, langsung redirect ke dashboard
+    header("Location: index.php");
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,10 +51,10 @@
                   </div>
                   <form method="POST" action="proses_login.php" class="user">
                     <div class="form-group">
-                      <input type="text" class="form-control form-control-user" id="exampleInputUsername" aria-describedby="usernameHelp" placeholder="Enter Username...">
+                      <input type="text" class="form-control form-control-user" name="username" id="exampleInputUsername" aria-describedby="usernameHelp" placeholder="Enter Username...">
                     </div>
                     <div class="form-group">
-                      <input type="password" class="form-control form-control-user" id="exampleInputPassword" placeholder="Password">
+                      <input type="password" class="form-control form-control-user" name="password" id="exampleInputPassword" placeholder="Password">
                     </div>
                     <button type="submit" class="btn btn-primary btn-user btn-block">
                       Login

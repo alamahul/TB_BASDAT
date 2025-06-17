@@ -1,3 +1,14 @@
+<?php
+
+session_start();
+if (!isset($_SESSION['username'])) {
+    // Jika belum login, kembalikan ke login
+    header("Location: login.php");
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -127,9 +138,7 @@
             <div class="container-fluid">
 
             <div class="d-sm-flex align-items-center justify-content-left mb-4">
-                <div>
-                  <a href="index.php" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
-                </div>
+                
                 <h1 class="h3 ml-4 mb-0 text-gray-800">Halaman Data Pegawai</h1>
               </div>
               
@@ -140,6 +149,18 @@
                       <h6 class="m-0 font-weight-bold text-primary">Data Tercatat 9 Pegawai</h6>
                       <a href="tambah_data_pegawai.php" class="btn btn-primary"><i class="fas fa-plus-circle mr-1"></i> Tambah</a>
                     </div>
+
+                    <?php
+                    
+                    include 'config.php'; // pastikan koneksi ke database ada
+
+                    // Query data pegawai
+                    $query = 'SELECT * FROM pegawai';
+
+                    $pegawai = mysqli_query($conn, $query);
+                    
+                    ?>
+
                     <div class="card-body">
 
                       <div class="table-responsive">
@@ -148,13 +169,18 @@
                           <tr>
                             <th class="text-left" >NIPD</th>
                             <th class="text-left">Nama</th>
+                            <th class="text-left">Email</th>
+                            <th class="text-left">Status</th>
                             <th class="text-center">Aksi</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>19840511332010</td>
-                            <td>Ade Irmayanti</td>
+                          <?php foreach ($pegawai as $data) { ?>
+                            <tr>
+                            <td><?= $data['nipd'] ?></td>
+                            <td><?= $data['nama_lengkap'] ?></td>
+                            <td><?= $data['email'] ?></td>
+                            <td><?= $data['status_pegawai'] ?></td>
                             <td>
                               <div class="text-center">
                                 <a class="text-center text-warning mr-2" href="edit_data_pegawai.php"><i class="fas fa-edit"></i> Edit </a>
@@ -167,21 +193,9 @@
                               </div>
                             </td>
                           </tr>
-                          <tr>
-                            <td>19750416332010</td>
-                            <td>Elit Iwan Sulaeman</td>
-                            <td>
-                              <div class="text-center">
-                                <a class="text-center text-warning mr-2" href="edit_data_pegawai.php"><i class="fas fa-edit"></i> Edit </a>
-                                <button type="button" class="border-0 bg-transparent text-center text-danger"
-                                onclick="
-                                          konfirmasi = confirm('Apakah kamu yakin ingin menghapus data pegawai ini?');
-                                          if (konfirmasi == true) { window.location.href = 'hapus_data_pegawai.php' }
-                                "
-                                 href="hapus_data_pegawai.php"><i class="fas fa-trash"></i> Hapus </button>
-                              </div>
-                            </td>
-                          </tr>
+                          <?php } ?>
+                          
+                         
                       </tbody>
                     </table>
                     

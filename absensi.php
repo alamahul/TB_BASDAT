@@ -1,6 +1,11 @@
 <?php
 
-
+session_start();
+if (!isset($_SESSION['username'])) {
+    // Jika belum login, kembalikan ke login
+    header("Location: login.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -134,55 +139,109 @@
             <h1 class="h3 mb-0 text-gray-800">Halaman Absensi</h1>
             </div>
 
-                <div class="row">
-                <div class="col-lg-12">
-                  <div class="card shadow mb-4">
+              <?php
+                $filter_bulan = date('m-Y');
+                $filter_bulan = isset($_GET['filter_bulan_absensi']) ? $_GET['filter_bulan_absensi'] : date('m-Y');
+                list($bulan, $tahun) = explode('-', $filter_bulan);
+              
+              
+              include 'config.php'; // pastikan koneksi ke database ada
+
+              $query = "
+              SELECT p.id_presensi, p.nipd, pg.nama_lengkap, p.tanggal, s.deskripsi
+              FROM presensi p
+              JOIN (
+                SELECT MIN(id_presensi) AS id_presensi
+                FROM presensi
+                WHERE MONTH(tanggal) = '$bulan' AND YEAR(tanggal) = '$tahun'
+                GROUP BY tanggal
+              ) grouped_presensi ON p.id_presensi = grouped_presensi.id_presensi
+              JOIN pegawai pg ON p.nipd = pg.nipd
+              JOIN status_presensi s ON p.kode_status = s.kode_status
+              ORDER BY p.tanggal ASC
+            ";
+
+                  $result = mysqli_query($conn, $query);
+
+              ?>
+
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <form action="absensi.php" method="get">
                   <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Absensi Juni 2025</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Data Absensi Pertanggal</h6>
                     <div class="row">
-                      <select class="form-control" name="filter_bulan_absensi" id="filter_bulan_absensi">
-                        <option value="01-2025">Januari 2025</option>
-                        <option value="02-2025">Febuari 2025</option>
-                        <option value="03-2025">Maret 04/2025</option>
-                        <option value="04-2025">April 05/2025</option>
-                        <option value="05-2025">Mei 2025</option>
-                        <option selected value="06-2025">Juni 2025</option>
-                      </select>
+                    <div class="col-lg-12 col-md-12">
+                       <select class="form-control" name="filter_bulan_absensi" onchange="this.form.submit()">
+                             <option value="01-2025" <?= ($filter_bulan ?? '') == '01-2025' ? 'selected' : '' ?>>Januari 2025</option>
+                            <option value="02-2025" <?= ($filter_bulan ?? '') == '02-2025' ? 'selected' : '' ?> >Febuari 2025</option>
+                            <option value="03-2025" <?= ($filter_bulan ?? '') == '03-2025' ? 'selected' : '' ?> >Maret 03/2025</option>
+                            <option value="04-2025" <?= ($filter_bulan ?? '') == '04-2025' ? 'selected' : '' ?> >April 04/2025</option>
+                            <option value="05-2025" <?= ($filter_bulan ?? '') == '05-2025' ? 'selected' : '' ?> >Mei 2025</option>
+                            <option value="06-2025" <?= ($filter_bulan ?? '') == '06-2025' ? 'selected' : '' ?> >Juni 2025</option>
+                            <option value="07-2025" <?= ($filter_bulan ?? '') == '07-2025' ? 'selected' : '' ?> >Juli 2025</option>
+                            <option value="08-2025" <?= ($filter_bulan ?? '') == '08-2025' ? 'selected' : '' ?> >Agustus 2025</option>
+                            <option value="09-2025" <?= ($filter_bulan ?? '') == '09-2025' ? 'selected' : '' ?> >September 2025</option>
+                            <option value="10-2025" <?= ($filter_bulan ?? '') == '10-2025' ? 'selected' : '' ?> >Oktober 2025</option>
+                            <option value="11-2025" <?= ($filter_bulan ?? '') == '11-2025' ? 'selected' : '' ?> >Novermber 2025</option>
+                            <option value="12-2025" <?= ($filter_bulan ?? '') == '12-2025' ? 'selected' : '' ?> >Desember 2025</option>
+                          </select>
+                      </div>
+                      
+                      </div>
                     </div>
-                  </div>
+                  </form>
                     <div class="card-body">
-
                       <div class="row">
-
+                      <?php
+                      $no = 1;
+                      while ($row = mysqli_fetch_assoc($result)) { ?>
                         <!-- Absensi tercatat -->
                         <div class="col-xl-4 col-md-6 mb-4">
                           <div class="card border-left-primary shadow h-100 py-2">
                             <div class="card-header">
-                              <h6 class="text-center text-bold text-primary">Absensi tanggal 1 (tercatat)</h6>
+                              <h6 class="text-center text-bold text-primary">
+                              Absensi hari ke-
+                              <?php
+                               $tanggal = $row['tanggal'];
+                               $timestamp = strtotime($tanggal);
+                               $hari = date("d", $timestamp);
+                               echo $hari;
+                               ?>
+                               (tercatat)
+                              </h6>
                             </div>
                            <div class="card-body">
                              <div class="row no-gutters align-items-center">
                                 <div class="input-group mb-3 text-center">
-                                  <input value="2017-06-01" type="date" class="form-control" name="tanggal_absensi">
+                                  <input readonly value="<?php echo $row['tanggal'] ; ?>" type="date" class="form-control" name="tanggal_absensi">
                                </div>
-                                  <a href="proses_absensi.php" class="btn btn-primary">Lakukan Absensi</a>
+                               <?php 
+                                  
+                                  
+                               ?>
+                                  <a href="lihat_detail_absensi.php?tanggal_absensi=<?php echo $row['tanggal'] ?>&filter_bulan_absensi=<?= $filter_bulan ?>" class="btn btn-primary">Lihat Absensi</a>
                             </div>
                            </div>
                           </div>
                         </div>
                         
+                     <?php $no++; } ?>
+                        
+                        
                         <!-- Absensi Belum tercatat -->
                         <div class="col-xl-4 col-md-6 mb-4">
                           <div class="card border-left-secondary shadow h-100 py-2">
                             <div class="card-header">
-                              <h6 class="text-center text-bold text-secondary">Absensi tanggal 2 </h6>
+                              <h6 class="text-center text-bold text-secondary">Absensi baru </h6>
                             </div>
                            <div class="card-body">
-                            <form action="">
+                            <form action="proses_absensi.php" method="POST">
                               <div class="row no-gutters align-items-center">
                                  <div class="input-group mb-3 text-center">
                                    <input type="date" class="form-control" value="<?php echo ''. date('Y-m-d') .'' ?>" name="tanggal_absensi">
-                                   
+                                   <input type="hidden" class="form-control" value="<?php echo ''. $_GET['filter_bulan_absensi'] .'' ?>" name="filter_tanggal_absensi">
                                 </div>
                                    <button type="submit" class="btn btn-secondary">Lakukan Absensi</button>
                              </div>

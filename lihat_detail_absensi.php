@@ -3,11 +3,9 @@
 session_start();
 if (!isset($_SESSION['username'])) {
     // Jika belum login, kembalikan ke login
-    
     header("Location: login.php");
     exit;
 }
-include 'config.php';
 
 ?>
 
@@ -22,14 +20,15 @@ include 'config.php';
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Dashboard - SIPEDES</title>
+  <title>Lihat Detail Absensi - SIPEDES</title>
 
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link rel="shortcut icon" href="Lambang_kabupaten_garut.png" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
   <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
+   <!-- Custom styles for this page -->
+   <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 </head>
 
 <body id="page-top">
@@ -55,6 +54,8 @@ include 'config.php';
       </li>
 
       <hr class="sidebar-divider">
+
+
       <li class="nav-item">
         <a class="nav-link collapsed ml-1" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
           <i class="fas fa-list-alt"></i>
@@ -97,7 +98,6 @@ include 'config.php';
       </div>
 
     </ul>
-
     <div id="content-wrapper" class="d-flex flex-column">
 
       <div id="content">
@@ -133,36 +133,112 @@ include 'config.php';
           </ul>
 
         </nav>
-        <div class="container-fluid">
+            <?php 
+            
+            include 'config.php';
+            $tanggal_absensi = $_GET['tanggal_absensi'];
+            
+            // $query = "SELECT * FROM presensi WHERE tanggal = '$tanggal_absensi'";            
+            $query = "SELECT * FROM presensi INNER JOIN pegawai ON pegawai.nipd = presensi.nipd WHERE tanggal = '$tanggal_absensi'";            
+            
+            $presensi = mysqli_query($conn, $query);
+            //var_dump($query);
+            ?>        
 
-          <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            </div>
+            <div class="container-fluid">
 
-         
-
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="card shadow mb-4">
-              <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Selamat Datang di Dashboard Admin Sistem Informasi Pengelolaan Desa X</h6>
-               
-              </div>
-                <div class="card-body">
-                  <p>Sistem Pengelola Desa adalah platform digital terpadu yang dirancang untuk memudahkan administrasi dan layanan desa secara efisien dan transparan. Melalui dashboard ini, Anda sebagai admin dapat mengelola berbagai aspek pemerintahan desa, termasuk:</p>
-                  <ul>
-                  <li>Data Penduduk: Lihat dan kelola data warga secara real-time.</li>
-                  <li>Pelayanan Publik: Pantau pengajuan surat, permohonan layanan, dan statusnya.</li>
-                  <li>Keuangan Desa: Catat dan pantau pemasukan serta pengeluaran anggaran desa.</li>
-                  <li>Pegawai Desa: Mencatat data pegawai dari kantor desa.</li>
-                  <li>Absensi Pegawai: Absensi harian untuk pegawai desa.</li>
-                  <li>Agenda dan Kegiatan: Atur jadwal kegiatan desa dan dokumentasikan hasilnya.</li>
-                  <li>Laporan dan Statistik: Akses laporan bulanan dan data statistik desa.</li>
-                  </ul>
+            <div class="d-sm-flex align-items-center justify-content-left mb-4">
+                <div>
+                  <a href="absensi.php?filter_bulan_absensi=<?= $_GET['filter_bulan_absensi'] ?>" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
                 </div>
+                <h1 class="h3 ml-4 mb-0 text-gray-800">Halaman Detail Absensi</h1>
               </div>
-            </div>
-          </div>
+                <form action="proses_update_absen.php" method="POST">
+                <input type="hidden" name="filter_bulan_absensi" value="<?= $_GET['filter_bulan_absensi'] ?>">
+                <input type="hidden" name="tanggal_absensi" value="<?= $tanggal_absensi ?>">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                      <h6 class="m-0 font-weight-bold text-primary">Absensi Tanggal <?= $tanggal_absensi ?></h6>
+                      <div class="row">
+                        <div class="col-lg-8 col-md-10">
+                            <select class="custom-select" name="multi_presensi" id="">
+                                <option selected>Belum di dipilih</option>
+                                <option value="1">Libur</option>
+                                <option value="2">Hadir Tepat Waktu</option>
+                                <option value="3">Hadir Telat</option>
+                                <option value="4">Tugas Luar</option>
+                                <option value="5">Izin</option>
+                                <option value="6">Tidak Hadir</option>
+                              </select>
+                        </div>
+                        <div class="col-lg-2 col-md-6">
+                          <button class="btn btn-primary">Submit</button>
+                        </div>
+                        
+                        
+                      </div>
+                    </div>
+                    <div class="card-body">
+
+                      <div class="table-responsive">
+                      <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>  
+                          <tr>
+                            <th class="text-left" >NIPD</th>
+                            <th class="text-left">Nama</th>
+                            <th class="text-center">Presensi</th>
+                            <th class="text-center">Pilih</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        <?php $i = 1; ?>
+                        <?php foreach($presensi as $data) { ?>
+                          <tr>
+                            <td><?= $data['nipd'] ?></td>
+                            <input type="hidden" name="nipd_pegawai_<?= $i ?>" value="<?= $data['nipd']; ?>">
+                            <td><?= $data['nama_lengkap'] ?></td>
+                            <td>
+                            <div class="input-group m-0 p-0">
+                              <select class="custom-select" name="single_presensi" id="" disabled>
+                              <option <?= ($data['kode_status'] ?? '') == 'NULL' ? 'selected' : '' ?> >Belum tercatat</option>
+                              <option value="1" <?= ($data['kode_status'] ?? '') == '1' ? 'selected' : '' ?> >Libur</option>
+                              <option value="2" <?= ($data['kode_status'] ?? '') == '2' ? 'selected' : '' ?> >Hadir Tepat Waktu</option>
+                              <option value="3" <?= ($data['kode_status'] ?? '') == '3' ? 'selected' : '' ?> >Hadir Telat</option>
+                              <option value="4" <?= ($data['kode_status'] ?? '') == '4' ? 'selected' : '' ?> >Tugas Luar</option>
+                              <option value="5" <?= ($data['kode_status'] ?? '') == '5' ? 'selected' : '' ?> >Izin</option>
+                              <option value="6" <?= ($data['kode_status'] ?? '') == '6' ? 'selected' : '' ?> >Tidak Hadir</option>
+                              </select>
+                            </div>
+                            </td>
+                            <td class="text-center">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">
+                                  <input type="checkbox" name="<?php echo 'presensi_pegawai_'.$i ?>">
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          <?php $i++ ?>
+                          <?php } ?>
+                          
+                      </tbody>
+                    </table>
+                    
+              </div>
+              </form>
+        
+            
+        
+      </div>
+    </div>
+
+          
+
+          
 
           
           </div>
@@ -207,8 +283,12 @@ include 'config.php';
 
   <script src="vendor/chart.js/Chart.min.js"></script>
 
-  <script src="js/demo/chart-area-demo.js"></script>
-  <script src="js/demo/chart-pie-demo.js"></script>
+  <!-- Page level plugins -->
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+  <!-- Page level custom scripts -->
+  <script src="js/demo/datatables-demo.js"></script>
 
 </body>
 

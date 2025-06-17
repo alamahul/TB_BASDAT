@@ -1,5 +1,16 @@
 <?php
 
+session_start();
+if (!isset($_SESSION['username'])) {
+    // Jika belum login, kembalikan ke login
+    header("Location: login.php");
+    exit;
+}
+
+?>
+
+<?php
+
 
 ?>
 
@@ -141,24 +152,32 @@
                 <a class="btn btn-warning" href="edit_profile.php"><i class="fas fa-user-edit"></i> Edit Data </a>
               </div>
                 <div class="card-body">
+                    <?php
+                    include 'config.php';
+                    $query = "SELECT * FROM admin";
                     
+                    $result = mysqli_query($conn, $query);
+                    $admin = mysqli_fetch_assoc($result)
+                    ?>
+
                     <table class="table">
                     <tbody>
+
                       <tr class="text-left">
                           <td colspan="2">Profile</td>
                       </tr>
                       <tr>
                         <td>Username</td>
-                        <td> Admin </td>
+                        <td> <?= $admin['username'] ?> </td>
                       </tr>
                       </tr>
                       <tr class="bg-light text-dark">
-                        <td>Nama Lengkap</td>
-                        <td> Joko Widodo </td>
+                        <td>Email</td>
+                        <td> <?= $admin['email'] ?> </td>
                       </tr>
                       <tr>
                         <td>Telepon</td>
-                        <td> 089989879442 </td>
+                        <td> <?= $admin['no_telepon'] ?> </td>
                       </tr>
                     </tbody>
                   </table>

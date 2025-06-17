@@ -1,3 +1,14 @@
+<?php
+
+session_start();
+if (!isset($_SESSION['username'])) {
+    // Jika belum login, kembalikan ke login
+    header("Location: login.php");
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -122,22 +133,57 @@
           </ul>
 
         </nav>
+
+        <?php 
+          //var_dump($_POST);die;
+          if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $tanggal_absensi = $_POST['tanggal_absensi'];
+        
+            // Melakukan sanitasi input untuk keamanan (sangat penting!)
+            $tanggal_absensi = htmlspecialchars(strip_tags($tanggal_absensi));
+            $filter = $_POST['filter_tanggal_absensi'];
+            
+            // list($bulan, $tahun) = explode('-', $filter_bulan_2);
+            
+            
+
+            // koneksi ke database
+            include 'config.php'; // pastikan koneksi ke database ada
+
+            // Query data pegawai
+            $query = "SELECT * FROM pegawai WHERE status_pegawai = 'aktif'";
+
+            $pegawai = mysqli_query($conn, $query);
+            //var_dump($tanggal_absensi);die;
+          }
+            // foreach($pegawai as $row) {
+            //   $query = "INSERT INTO presensi(tanggal, nipd) VALUES ($tanggal_absensi, ". $row['nipd'] ."); ";
+            //   mysqli_query($conn, )
+            // }
+
+            // 3. Menyiapkan dan Menjalankan Query SQL
+            // Menggunakan Prepared Statements untuk mencegah SQL Injection (SANGAT DIREKOMENDASIKAN)
+            
+            
+        ?>
         
 
             <div class="container-fluid">
 
             <div class="d-sm-flex align-items-center justify-content-left mb-4">
                 <div>
-                  <a href="absensi.php" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
+                  <a href="absensi.php?filter_bulan_absensi=<?= $filter; ?>" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
                 </div>
                 <h1 class="h3 ml-4 mb-0 text-gray-800">Halaman Proses Absensi</h1>
               </div>
-                <form action="proses_pencatatan_absen.php" method="POST">
+                <form action="proses_tambah_absen.php" method="POST">
+                   <input type="hidden" name="filter_bulan_absensi" value="<?= $filter ?>">
+                  <input type="hidden" name="tanggal_absensi" value="<?= $tanggal_absensi ?>">
                 <div class="row">
                   <div class="col-lg-12">
                     <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                      <h6 class="m-0 font-weight-bold text-primary">Absensi 1 Juni 2025</h6>
+                      <h6 class="m-0 font-weight-bold text-primary">Absensi baru</h6>
                       <div class="row">
                         <div class="col-lg-8 col-md-10">
                             <select class="custom-select" name="multi_presensi" id="">
@@ -170,12 +216,15 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>19840511332010</td>
-                            <td>Ade Irmayanti</td>
+                          <?php $i = 1; ?>
+                          <?php foreach ($pegawai as $data) { ?>
+                            <tr>
+                              <td><?php echo $data['nipd'] ?></td>
+                              <input type="hidden" name="nipd_pegawai_<?= $i ?>" value="<?= $data['nipd']; ?>">
+                            <td><?php echo $data['nama_lengkap'] ?></td>
                             <td>
                             <div class="input-group m-0 p-0">
-                              <select class="custom-select" name="single_presensi" id="">
+                              <select aria-readonly="true" class="custom-select" name="<?php echo 'status_presensi_'.$i ?>" id="" disabled>
                                 <option selected>Belum di catat</option>
                                 <option value="1">Libur</option>
                                 <option value="2">Hadir Tepat Waktu</option>
@@ -190,34 +239,15 @@
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
                                   <div class="input-group-text">
-                                    <input type="checkbox">
+                                    <input type="checkbox" name="<?php echo 'presensi_pegawai_'.$i ?>">
                                   </div>
                                 </div>
                               </div>
                             </td>
                           </tr>
-                          <tr>
-                            <td>19750416332010</td>
-                            <td>Elit Iwan Sulaeman</td>
-                            <td><select class="custom-select" name="single_presensi" id="">
-                                <option selected>Belum di catat</option>
-                                <option value="1">Libur</option>
-                                <option value="2">Hadir Tepat Waktu</option>
-                                <option value="3">Hadir Telat</option>
-                                <option value="4">Tugas Luar</option>
-                                <option value="5">Izin</option>
-                                <option value="6">Tidak Hadir</option>
-                              </select></td>
-                            <td class="text-center">
-                               <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text">
-                                    <input type="checkbox">
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
+                          <?php $i++ ?>
+                          <?php } ?> 
+                         
                       </tbody>
                     </table>
                     

@@ -1,3 +1,14 @@
+<?php
+
+session_start();
+if (!isset($_SESSION['username'])) {
+    // Jika belum login, kembalikan ke login
+    header("Location: login.php");
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -132,7 +143,7 @@
                 </div>
                 <!-- <h1 class="h3 ml-4 mb-0 text-gray-800">Halaman Edit Data Pegawai</h1> -->
               </div>
-                <form action="proses_pencatatan_absen.php" method="POST">
+                
                 <div class="row">
                   <div class="col-lg-12">
                     <div class="card shadow mb-4">
@@ -152,6 +163,17 @@
                               <h5>Nama Lengkap</h5>
                               <input class="form-control" name="nama_lengkap" id="nama_lengkap">
                             </div>
+                            <div class="form-group">
+                              <h5>Email</h5>
+                              <input class="form-control" name="email" id="email">
+                            </div>
+                            <div class="form-group">
+                              <h5>Status</h5>
+                              <select class="form-control" name="status" id="status">
+                                <option value="aktif">Aktif</option>
+                                <option value="tidak Aktif">Tidak Aktif</option>
+                              </select>
+                            </div>
                             <button class="btn btn-warning" type="submit">
                               <i class="fas fa-upload"></i>
                               Ubah
@@ -164,7 +186,7 @@
                     </div>
                     
               </div>
-              </form>
+            
         
             
         

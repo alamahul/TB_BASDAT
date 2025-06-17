@@ -1,6 +1,11 @@
 <?php
 
-
+session_start();
+if (!isset($_SESSION['username'])) {
+    // Jika belum login, kembalikan ke login
+    header("Location: login.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -143,7 +148,7 @@
                 <div class="card-body">
                   <ul>
                   <li>Alamahul Bayan (2306163): Software Developer</li>
-                  <li>Muhammad Fathul Barry (2306...): Database Designer</li>
+                  <li>Muhammad Fathul Barry (2306122): Database Designer</li>
                   <li>Muhammad Jafar Sofian (2306160): System Analyst</li>
                   <li>Ramdhani Sulaeman Burhandin (2306161): Support</li>
                   <li>Aditya Permana (2306162): Support</li>
